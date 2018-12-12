@@ -78,6 +78,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y libasio-dev lib
 # Install OpenCV.
 RUN apt-get update && apt-get install --no-install-recommends -y libopencv-dev
 
+# Install Gazebo9.
+RUN apt-get update && apt-get install --no-install-recommends -y libgazebo9-dev
+
+
 # Install console_bridge for class_loader et al.
 RUN if test ${UBUNTU_DISTRO} != xenial; then apt-get update && apt-get install --no-install-recommends -y libconsole-bridge-dev; fi
 
