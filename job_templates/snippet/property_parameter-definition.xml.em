@@ -51,7 +51,9 @@ This tests the robustness to whitespace being within the different paths.</descr
 @{
 sanitizer_types.remove(enable_sanitizer_type_default)
 }@
-              <string>@sanitizer_types[0]</string>
+@[for choice in sanitizer_types]@
+              <string>@choice</string>
+@[end for]@
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>

@@ -208,6 +208,17 @@ def main(argv=None):
                 'test_args_default': '--event-handlers console_direct+ --executor sequential'
             })
 
+        # configure nightly job for testing rmw based packages with thread sanitizer on linux
+        if os_name == 'linux':
+            create_job('linux', 'nightly_linux_thread_sanitizer', 'ci_job.xml.em', {
+                'cmake_build_type': 'Debug',
+                'enable_sanitizer_type_default': 'thread',
+                'restrict_sanitizer_to_pkgs_regex_default': 'rmw',
+                'time_trigger_spec': PERIODIC_JOB_SPEC,
+                'mailer_recipients': DEFAULT_MAIL_RECIPIENTS,
+                'test_args_default': '--event-handlers console_direct+ --executor sequential'
+            })
+
         # configure a manually triggered version of the coverage job
         if os_name == 'linux':
             create_job(os_name, 'ci_' + os_name + '_coverage', 'ci_job.xml.em', {

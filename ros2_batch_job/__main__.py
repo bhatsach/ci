@@ -370,7 +370,7 @@ def build_and_test(args, job):
 Add sanitizer based flags to colcon build for appropriate packages.
 '''
 def update_build_cmd_based_on_sanitizer_args(cmd, args):
-    sanitizer_flags = '-fsanitize={} -pthread'.format(args.enable_sanitizer_type)
+    sanitizer_flags = '-fsanitize={} -pthread -O1'.format(args.enable_sanitizer_type)
     additional_compiler_flags = '-g -fno-omit-frame-pointer'
     sanitizer_cmake_args = [
     '-DCMAKE_CXX_FLAGS="{} {}"'.format(sanitizer_flags, additional_compiler_flags),
@@ -389,9 +389,16 @@ def update_build_cmd_based_on_sanitizer_args(cmd, args):
         build_cmd_upto_regex_pkgs = cmd[:] + ['--packages-up-to'] + regex_pkgs
         build_cmd_for_regex_pkgs = cmd[:] + ['--packages-select'] + regex_pkgs
         build_cmd_above_regex_pkgs = cmd[:] + ['--packages-up-to'] + pkgs_above_regex_pkgs + ['--packages-skip-build-finished']
+
         # For address sanitizer, only regex packages need to be build with sanitizer flags
         if args.enable_sanitizer_type == 'address':
             add_cmake_args_to_cmd(build_cmd_for_regex_pkgs, sanitizer_cmake_args)
+
+        # For thread sanitizer, all packages upto regex packages must be sanitized
+        if args.enable_sanitizer_type == 'thread':
+            add_cmake_args_to_cmd(build_cmd_upto_regex_pkgs, sanitizer_cmake_args)
+            build_cmd_for_regex_pkgs.extend(['--packages-skip-build-finished'])
+
         cmd = build_cmd_upto_regex_pkgs + [';'] + build_cmd_for_regex_pkgs + [';'] + build_cmd_above_regex_pkgs
     else:
         add_cmake_args_to_cmd(cmd, sanitizer_cmake_args)
@@ -400,7 +407,6 @@ def update_build_cmd_based_on_sanitizer_args(cmd, args):
 '''
 Fetches list of packages matching the provided regex for sanitization. It also provides the list of
 packages above regex packages.
-
 '''
 def fetch_pkgs_based_on_regex(args):
     regex_pkgs_output = subprocess.check_output(
